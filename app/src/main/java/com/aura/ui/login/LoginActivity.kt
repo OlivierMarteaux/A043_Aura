@@ -4,9 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -48,46 +50,32 @@ class LoginActivity : AppCompatActivity()
     binding = ActivityLoginBinding.inflate(layoutInflater)
     setContentView(binding.root)
 
-    val login = binding.login
-    val loading = binding.loading
-    val identifier = binding.identifier
-    val password = binding.password
-
     // Add text change listener to identifier
-    identifier.addTextChangedListener(object : TextWatcher {
-      override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-        // Optional: handle logic before the text changes
-      }
-
-      override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        // Called when the text is being changed
-        println("Identifier changed: $s")
-      }
-
-      override fun afterTextChanged(s: Editable?) {
-        loginViewModel.getIdentifier(s.toString())
-      }
-    })
+    binding.identifier.doOnTextChanged { text, _, _, _ ->
+      loginViewModel.getIdentifier(text.toString())
+    }
 
     // Add text change listener to password
-    password.addTextChangedListener(object : TextWatcher {
-      override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-      override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        println("Password changed: $s")
+    binding.password.doOnTextChanged { text, _, _, _ ->
+      loginViewModel.getPassword(text.toString())
+    }
+
+    // Collect UI state to update UI
+    lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        loginViewModel.uiState.collect { state ->
+          binding.loading.visibility = if (state.isLoading) View.VISIBLE else View.GONE
+          binding.login.isEnabled = state.isLoggable
+        }
       }
-      override fun afterTextChanged(s: Editable?) {
-        loginViewModel.getPassword(s.toString())
-      }
-    })
+    }
 
-
-    login.setOnClickListener {
-      loading.visibility = View.VISIBLE
-
-      val intent = Intent(this@LoginActivity, HomeActivity::class.java)
-      startActivity(intent)
-
+    // Handle login button click
+    binding.login.setOnClickListener {
+      loginViewModel.onLoginClicked()
+      startActivity(Intent(this, HomeActivity::class.java))
       finish()
+
     }
   }
 }
