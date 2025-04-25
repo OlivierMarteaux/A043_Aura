@@ -8,7 +8,18 @@ import com.aura.databinding.ActivityLoginBinding
 import com.aura.ui.home.HomeActivity
 
 /**
- * The login activity for the app.
+ * LoginActivity handles user login to the application.
+ * It simulates a login process and redirects to the HomeActivity.
+ *
+ * This activity includes:
+ * - A login Button to simulate login.
+ * - A loading View that is displayed during the login process.
+ *
+ * This is a simplified example without actual authentication logic.
+ * In a real application, validation and network calls would be implemented.
+ *
+ * Once the login is successful, the HomeActivity is launched and LoginActivity is finished.
+ *
  */
 class LoginActivity : AppCompatActivity()
 {

@@ -13,7 +13,14 @@ import com.aura.ui.login.LoginActivity
 import com.aura.ui.transfer.TransferActivity
 
 /**
- * The home activity for the app.
+ * HomeActivity is the main screen shown after a successful login.
+ * It displays the user's account balance and allows the user to initiate a transfer.
+ *
+ * This activity includes:
+ * - A TextView to show the current balance.
+ * - A Button to start the transfer process.
+ * - A menu option to log out and return to the login screen.
+ *
  */
 class HomeActivity : AppCompatActivity()
 {
