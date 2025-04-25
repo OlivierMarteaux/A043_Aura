@@ -2,13 +2,33 @@ package com.aura.ui.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.aura.databinding.ActivityLoginBinding
 import com.aura.ui.home.HomeActivity
+import kotlinx.coroutines.launch
 
 /**
- * The login activity for the app.
+ * LoginActivity handles user login to the application.
+ * It simulates a login process and redirects to the HomeActivity.
+ *
+ * This activity includes:
+ * - A login Button to simulate login.
+ * - A loading View that is displayed during the login process.
+ *
+ * This is a simplified example without actual authentication logic.
+ * In a real application, validation and network calls would be implemented.
+ *
+ * Once the login is successful, the HomeActivity is launched and LoginActivity is finished.
+ *
  */
 class LoginActivity : AppCompatActivity()
 {
@@ -18,6 +38,11 @@ class LoginActivity : AppCompatActivity()
    */
   private lateinit var binding: ActivityLoginBinding
 
+  /**
+   * The ViewModel for handling login logic.
+   */
+  private val loginViewModel: LoginViewModel by viewModels()
+
   override fun onCreate(savedInstanceState: Bundle?)
   {
     super.onCreate(savedInstanceState)
@@ -25,17 +50,32 @@ class LoginActivity : AppCompatActivity()
     binding = ActivityLoginBinding.inflate(layoutInflater)
     setContentView(binding.root)
 
-    val login = binding.login
-    val loading = binding.loading
+    // Add text change listener to identifier
+    binding.identifier.doOnTextChanged { text, _, _, _ ->
+      loginViewModel.getIdentifier(text.toString())
+    }
 
-    login.setOnClickListener {
-      loading.visibility = View.VISIBLE
+    // Add text change listener to password
+    binding.password.doOnTextChanged { text, _, _, _ ->
+      loginViewModel.getPassword(text.toString())
+    }
 
-      val intent = Intent(this@LoginActivity, HomeActivity::class.java)
-      startActivity(intent)
+    // Collect UI state to update UI
+    lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        loginViewModel.uiState.collect { state ->
+          binding.loading.visibility = if (state.isLoading) View.VISIBLE else View.GONE
+          binding.login.isEnabled = state.isLoggable
+        }
+      }
+    }
 
+    // Handle login button click
+    binding.login.setOnClickListener {
+      loginViewModel.onLoginClicked()
+      startActivity(Intent(this, HomeActivity::class.java))
       finish()
+
     }
   }
-
 }

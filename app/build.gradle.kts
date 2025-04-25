@@ -5,7 +5,7 @@ plugins {
 
 android {
   namespace = "com.aura"
-  compileSdk = 33
+  compileSdk = 35
 
   defaultConfig {
     applicationId = "com.aura"
@@ -37,6 +37,7 @@ android {
 
 dependencies {
 
+  //initial
   implementation("androidx.core:core-ktx:1.9.0")
   implementation("androidx.appcompat:appcompat:1.6.1")
   implementation("com.google.android.material:material:1.8.0")
@@ -45,4 +46,16 @@ dependencies {
   testImplementation("junit:junit:4.13.2")
   androidTestImplementation("androidx.test.ext:junit:1.1.5")
   androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+  //activity (viewModel())
+  implementation("androidx.activity:activity-ktx:1.8.2")
+
+  // lifecycle (lifecycleScope)
+  implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+
+
+//  //Hilt
+//  val hiltVersion = "2.44"
+//  implementation("com.google.dagger:hilt-android:${hiltVersion}")
+//  annotationProcessor("com.google.dagger:hilt-compiler:${hiltVersion}")
 }

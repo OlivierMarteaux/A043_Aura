@@ -7,7 +7,22 @@ import androidx.appcompat.app.AppCompatActivity
 import com.aura.databinding.ActivityTransferBinding
 
 /**
- * The transfer activity for the app.
+ * TransferActivity allows the user to enter transfer details and confirm the transaction.
+ *
+ * This activity includes:
+ * - Input fields for the recipient and amount.
+ * - A transfer Button to confirm the action.
+ * - A loading View that is shown during the transfer.
+ *
+ * Once the transfer is confirmed, the activity returns a result to the calling activity
+ * and finishes itself.
+ *
+ * Note: This is a simplified mockup and does not include real transaction handling.
+ *
+ * @see android.app.Activity.setResult
+ * @see android.app.Activity.RESULT_OK
+ * @see android.app.Activity.finish
+ *
  */
 class TransferActivity : AppCompatActivity()
 {
