@@ -3,7 +3,6 @@ package com.aura.data.container
 import com.aura.data.network.AuraClient
 import com.aura.data.repository.LoginRepository
 import com.aura.data.repository.NetworkLoginRepository
-import com.aura.ui.login.LoginViewModel
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -14,7 +13,12 @@ interface AppContainer{
 }
 
 class NetworkAppContainer: AppContainer{
-    private val baseUrl = "http://127.0.0.1:8080/"
+
+    // from emulator:
+    // private val baseUrl = "http://10.0.2.2:8080"
+
+    // from my physical phone:
+    private val baseUrl = "http://192.168.10.48:8080"
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -36,5 +40,4 @@ class NetworkAppContainer: AppContainer{
     override val loginRepository: LoginRepository by lazy {
         NetworkLoginRepository(auraClient)
     }
-//    val viewModel = LoginViewModel(loginRepository)
 }

@@ -7,9 +7,7 @@ interface LoginRepository{
     suspend fun login(id: String, password: String): Boolean
 }
 
-class NetworkLoginRepository(
-    private val auraClient: AuraClient
-): LoginRepository {
+class NetworkLoginRepository(private val auraClient: AuraClient): LoginRepository {
     override suspend fun login(id: String, password: String): Boolean{
         val request = LoginRequest(id, password)
         val response = auraClient.login(request)

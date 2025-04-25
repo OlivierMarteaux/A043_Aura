@@ -51,7 +51,6 @@ class LoginActivity : AppCompatActivity()
     // Add text change listener to identifier
     binding.identifier.doOnTextChanged { text, _, _, _ ->
       loginViewModel.getIdentifier(text.toString())
-
     }
 
     // Add text change listener to password
@@ -68,7 +67,6 @@ class LoginActivity : AppCompatActivity()
         }
       }
     }
-
 
     // Handle login button click
     binding.login.setOnClickListener {

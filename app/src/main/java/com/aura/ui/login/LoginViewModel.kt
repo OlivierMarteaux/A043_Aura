@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.aura.AuraApplication
 import com.aura.data.repository.LoginRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,12 +35,12 @@ data class LoginUiState(
     val isGranted: Boolean = false
 )
 
-//sealed class ServerResponse {
-//    data class Success(val granted: Boolean) : ServerResponse()
-//    data class Error(val errorMessage: String) : ServerResponse()
-//    object Loading : ServerResponse()
-//    object Idle : ServerResponse()
-//}
+sealed class ServerResponse {
+    data class Success(val granted: Boolean) : ServerResponse()
+    data class Error(val errorMessage: String) : ServerResponse()
+    object Loading : ServerResponse()
+    object Idle : ServerResponse()
+}
 
 /**
  * ViewModel responsible for managing the state of the login screen.
@@ -56,8 +57,8 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
     // Expose server response
-//    private val _serverResponse = MutableStateFlow<ServerResponse>(ServerResponse.Idle)
-//    val serverResponse: StateFlow<ServerResponse> = _serverResponse.asStateFlow()
+    private val _serverResponse = MutableStateFlow<ServerResponse>(ServerResponse.Idle)
+    val serverResponse: StateFlow<ServerResponse> = _serverResponse.asStateFlow()
 
     /**
      * Updates the identifier field in the UI state.
@@ -71,7 +72,7 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
         _uiState.update { currentState ->
             currentState.copy(
                 identifier = identifier,
-                isLoggable = isLoggable()
+                isLoggable = isLoggable(),
             )
         }
     }
@@ -88,7 +89,7 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
         _uiState.update { currentState ->
             currentState.copy(
                 password = password,
-                isLoggable = isLoggable()
+                isLoggable = isLoggable(),
             )
         }
     }
@@ -110,7 +111,7 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
     fun onLoginClicked(){
         viewModelScope.launch {
             _uiState.update { currentState -> currentState.copy(isLoading = true) }
-            val granted = loginRepository.login(uiState.value.identifier, uiState.value.password)
+            val granted = with(uiState.value) {loginRepository.login(identifier, password)}
             _uiState.update { currentState -> currentState.copy(isGranted = granted, isLoading = false) }
         }
     }
