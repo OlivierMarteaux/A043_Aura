@@ -82,12 +82,6 @@ class LoginActivity : AppCompatActivity()
     // Handle login button click
     binding.login.setOnClickListener {
       loginViewModel.onLoginClicked()
-//      if (loginViewModel.uiState.value.isGranted){
-//      startActivity(Intent(this, HomeActivity::class.java))
-//      finish()
-//      } else {
-//        Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show()
-//      }
     }
   }
 }

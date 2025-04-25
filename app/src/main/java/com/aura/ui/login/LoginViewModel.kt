@@ -8,7 +8,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.aura.AuraApplication
 import com.aura.data.repository.LoginRepository
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,12 +34,12 @@ data class LoginUiState(
     val isGranted: Boolean? = null,
 )
 
-sealed class ServerResponse {
-    data class Success(val granted: Boolean) : ServerResponse()
-    data class Error(val errorMessage: String) : ServerResponse()
-    object Loading : ServerResponse()
-    object Idle : ServerResponse()
-}
+//sealed class ServerResponse {
+//    data class Success(val granted: Boolean) : ServerResponse()
+//    data class Error(val errorMessage: String) : ServerResponse()
+//    object Loading : ServerResponse()
+//    object Idle : ServerResponse()
+//}
 
 /**
  * ViewModel responsible for managing the state of the login screen.
@@ -56,9 +55,9 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
     private val _uiState = MutableStateFlow(LoginUiState("", "", false))
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
-    // Expose server response
-    private val _serverResponse = MutableStateFlow<ServerResponse>(ServerResponse.Idle)
-    val serverResponse: StateFlow<ServerResponse> = _serverResponse.asStateFlow()
+//    // Expose server response
+//    private val _serverResponse = MutableStateFlow<ServerResponse>(ServerResponse.Idle)
+//    val serverResponse: StateFlow<ServerResponse> = _serverResponse.asStateFlow()
 
     /**
      * Updates the identifier field in the UI state.
@@ -104,9 +103,18 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
     }
 
     /**
-     * Triggers the loading state when the login action is initiated.
+     * Handles the login button click event.
      *
-     * This could be extended to include authentication logic and error handling.
+     * This method launches a coroutine in the [viewModelScope] to perform an asynchronous login operation.
+     * It first sets the UI state to loading, then attempts to log in using the current credentials
+     * stored in [uiState], and finally updates the UI state with the result.
+     *
+     * The method updates:
+     * - `isLoading` to `true` before the login request starts.
+     * - `isGranted` with the result of the login attempt.
+     * - `isLoading` back to `false` once the request completes.
+     *
+     * This function does not directly navigate or display messages—those should be handled by observing [uiState] from the UI layer.
      */
     fun onLoginClicked(){
         viewModelScope.launch {
@@ -116,20 +124,21 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
         }
     }
 
-//    suspend fun login() {
-//        viewModelScope.launch {
-//            try {
-//                val granted = with(uiState.value) {loginRepository.login(identifier, password)}
-//                _uiState.update { currentState -> currentState.copy(isGranted = granted) }
-//                _serverResponse.update { ServerResponse.Success(granted) }
-//
-//            } catch (e: Exception) {
-//                TODO("Not yet implemented")
-//            }
-//
-//        }
-//    }
-
+    /**
+     * Factory for creating an instance of [LoginViewModel] with application-level dependencies.
+     *
+     * This factory uses the [viewModelFactory] initializer DSL from the Jetpack `lifecycle-viewmodel-ktx` library
+     * to access the [Application] context and retrieve the required dependencies (in this case, the [LoginRepository]).
+     *
+     * It casts the application instance to [AuraApplication], which exposes an [AppContainer] holding the repository.
+     * This pattern ensures that the ViewModel can be created with the necessary dependencies without requiring
+     * a dependency injection framework.
+     *
+     * Usage (e.g., in an Activity or Fragment):
+     * ```
+     * val viewModel: LoginViewModel by viewModels { LoginViewModel.Factory }
+     * ```
+     */
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
