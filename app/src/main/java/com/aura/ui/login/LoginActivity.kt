@@ -39,7 +39,7 @@ class LoginActivity : AppCompatActivity()
   /**
    * The ViewModel for handling login logic.
    */
-  private val loginViewModel: LoginViewModel by viewModels()
+  private val loginViewModel: LoginViewModel by viewModels {LoginViewModel.Factory}
 
   override fun onCreate(savedInstanceState: Bundle?)
   {
@@ -73,7 +73,7 @@ class LoginActivity : AppCompatActivity()
     // Handle login button click
     binding.login.setOnClickListener {
       loginViewModel.onLoginClicked()
-      if (/*loginViewModel.uiState.value.isGranted*/true){
+      if (loginViewModel.uiState.value.isGranted){
       startActivity(Intent(this, HomeActivity::class.java))
       finish()
       } else {

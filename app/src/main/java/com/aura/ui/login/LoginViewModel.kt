@@ -2,7 +2,12 @@ package com.aura.ui.login
 
 import android.util.Log.isLoggable
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.aura.AuraApplication
+import com.aura.data.repository.LoginRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,7 +49,7 @@ data class LoginUiState(
  *
  * State is exposed as an immutable [StateFlow] to be observed by the UI.
  */
-class LoginViewModel(/*private val loginRepository: LoginRepository*/): ViewModel() {
+class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() {
 
     // Expose screen UI state
     private val _uiState = MutableStateFlow(LoginUiState("", "", false))
@@ -105,8 +110,8 @@ class LoginViewModel(/*private val loginRepository: LoginRepository*/): ViewMode
     fun onLoginClicked(){
         viewModelScope.launch {
             _uiState.update { currentState -> currentState.copy(isLoading = true) }
-//            val granted = loginRepository.login(uiState.value.identifier, uiState.value.password)
-//            _uiState.update { currentState -> currentState.copy(isGranted = granted, isLoading = false) }
+            val granted = loginRepository.login(uiState.value.identifier, uiState.value.password)
+            _uiState.update { currentState -> currentState.copy(isGranted = granted, isLoading = false) }
         }
     }
 //
@@ -116,14 +121,14 @@ class LoginViewModel(/*private val loginRepository: LoginRepository*/): ViewMode
 //            if (granted)
 //        }
 //    }
-//    companion object {
-//        val Factory: ViewModelProvider.Factory = viewModelFactory {
-//            initializer {
-//                val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AuraApplication)
-//                val loginRepository = application.container.loginRepository
-//                LoginViewModel(loginRepository = loginRepository)
-//            }
-//        }
-//    }
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AuraApplication)
+                val loginRepository = application.container.loginRepository
+                LoginViewModel(loginRepository = loginRepository)
+            }
+        }
+    }
 
 }
