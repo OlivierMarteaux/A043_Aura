@@ -29,6 +29,8 @@ class LoginActivity : AppCompatActivity()
    */
   private lateinit var binding: ActivityLoginBinding
 
+  private val loginViewModel: LoginViewModel by viewModels()
+
   override fun onCreate(savedInstanceState: Bundle?)
   {
     super.onCreate(savedInstanceState)
@@ -47,6 +49,11 @@ class LoginActivity : AppCompatActivity()
 
       finish()
     }
+  }
+
+  override fun onViewCreated(savedInstanceState: Bundle?) {
+    super.onViewCreated(savedInstanceState)
+
   }
 
 }
