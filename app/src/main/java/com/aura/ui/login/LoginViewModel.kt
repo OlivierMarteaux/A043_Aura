@@ -32,7 +32,7 @@ data class LoginUiState(
     val password: String,
     val isLoggable: Boolean,
     val isLoading: Boolean = false,
-    val isGranted: Boolean = false
+    val isGranted: Boolean? = null,
 )
 
 sealed class ServerResponse {
@@ -115,13 +115,21 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
             _uiState.update { currentState -> currentState.copy(isGranted = granted, isLoading = false) }
         }
     }
-//
-//    fun login(serverResponse: ServerResponse) {
+
+//    suspend fun login() {
 //        viewModelScope.launch {
-//            val granted = (serverResponse as ServerResponse.Success).granted
-//            if (granted)
+//            try {
+//                val granted = with(uiState.value) {loginRepository.login(identifier, password)}
+//                _uiState.update { currentState -> currentState.copy(isGranted = granted) }
+//                _serverResponse.update { ServerResponse.Success(granted) }
+//
+//            } catch (e: Exception) {
+//                TODO("Not yet implemented")
+//            }
+//
 //        }
 //    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -133,3 +141,21 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
     }
 
 }
+//
+//serverResponse.collect{ response ->
+//    when(response){
+//        is ServerResponse.Success -> {
+//            _uiState.update { currentState -> currentState.copy(isGranted = response.granted) }
+//        }
+//        is ServerResponse.Error -> {
+//            _uiState.update { currentState -> currentState.copy(isLoading = false) }
+//
+//        }
+//        is ServerResponse.Loading -> {
+//            _uiState.update { currentState -> currentState.copy(isLoading = true) }
+//        }
+//        is ServerResponse.Idle -> {
+//            _uiState.update { currentState -> currentState.copy(isLoading = false) }
+//        }
+//    }
+//}

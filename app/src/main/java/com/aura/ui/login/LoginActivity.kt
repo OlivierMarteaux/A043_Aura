@@ -63,7 +63,18 @@ class LoginActivity : AppCompatActivity()
       repeatOnLifecycle(Lifecycle.State.STARTED) {
         loginViewModel.uiState.collect { state ->
           binding.login.isEnabled = state.isLoggable
-          binding.loading.visibility = if (state.isLoading) View.VISIBLE else View.GONE
+          if (state.isLoading) {
+            binding.loading.visibility = View.VISIBLE
+            binding.login.isEnabled = false
+          } else {
+            binding.loading.visibility = View.GONE
+            if (state.isGranted == true){
+              startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
+              finish()
+            } else if (state.isGranted == false) {
+              Toast.makeText(this@LoginActivity, "permission denied", Toast.LENGTH_LONG).show()
+            }
+          }
         }
       }
     }
@@ -71,12 +82,12 @@ class LoginActivity : AppCompatActivity()
     // Handle login button click
     binding.login.setOnClickListener {
       loginViewModel.onLoginClicked()
-      if (loginViewModel.uiState.value.isGranted){
-      startActivity(Intent(this, HomeActivity::class.java))
-      finish()
-      } else {
-        Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show()
-      }
+//      if (loginViewModel.uiState.value.isGranted){
+//      startActivity(Intent(this, HomeActivity::class.java))
+//      finish()
+//      } else {
+//        Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show()
+//      }
     }
   }
 }
