@@ -2,10 +2,8 @@ package com.aura.ui.login
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
@@ -53,6 +51,7 @@ class LoginActivity : AppCompatActivity()
     // Add text change listener to identifier
     binding.identifier.doOnTextChanged { text, _, _, _ ->
       loginViewModel.getIdentifier(text.toString())
+
     }
 
     // Add text change listener to password
@@ -64,18 +63,22 @@ class LoginActivity : AppCompatActivity()
     lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
         loginViewModel.uiState.collect { state ->
-          binding.loading.visibility = if (state.isLoading) View.VISIBLE else View.GONE
           binding.login.isEnabled = state.isLoggable
+          binding.loading.visibility = if (state.isLoading) View.VISIBLE else View.GONE
         }
       }
     }
 
+
     // Handle login button click
     binding.login.setOnClickListener {
       loginViewModel.onLoginClicked()
+      if (/*loginViewModel.uiState.value.isGranted*/true){
       startActivity(Intent(this, HomeActivity::class.java))
       finish()
-
+      } else {
+        Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show()
+      }
     }
   }
 }
