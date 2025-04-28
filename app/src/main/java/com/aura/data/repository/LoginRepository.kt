@@ -1,6 +1,7 @@
 package com.aura.data.repository
 
 import com.aura.data.model.LoginRequest
+import com.aura.data.model.ServerConnection
 import com.aura.data.network.AuraClient
 
 /**
@@ -18,7 +19,7 @@ interface LoginRepository{
      * @return `true` if login is successful (access granted), `false` otherwise.
      * @throws Exception if the network request fails or the server returns an error.
      */
-    suspend fun login(id: String, password: String): Boolean
+    suspend fun login(id: String, password: String): ServerConnection<Boolean>
 }
 
 /**
@@ -30,9 +31,13 @@ interface LoginRepository{
  * @param auraClient The Retrofit service interface used to make network requests.
  */
 class NetworkLoginRepository(private val auraClient: AuraClient): LoginRepository {
-    override suspend fun login(id: String, password: String): Boolean{
-        val request = LoginRequest(id, password)
-        val response = auraClient.login(request)
-        return response.granted
+    override suspend fun login(id: String, password: String): ServerConnection<Boolean> {
+        return try {
+            val loginRequest = LoginRequest(id, password)
+            val loginResponse = auraClient.login(loginRequest)
+            ServerConnection.Success(loginResponse.granted)
+        } catch (e: Exception) {
+            ServerConnection.Error(e)
+        }
     }
 }

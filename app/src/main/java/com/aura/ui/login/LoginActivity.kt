@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -30,12 +31,10 @@ import kotlinx.coroutines.launch
  */
 class LoginActivity : AppCompatActivity()
 {
-
   /**
    * The binding for the login layout.
    */
   private lateinit var binding: ActivityLoginBinding
-
   /**
    * The ViewModel for handling login logic.
    */
@@ -58,30 +57,43 @@ class LoginActivity : AppCompatActivity()
       loginViewModel.getPassword(text.toString())
     }
 
-    // Collect UI state to update UI
-    lifecycleScope.launch {
-      repeatOnLifecycle(Lifecycle.State.STARTED) {
-        loginViewModel.uiState.collect { state ->
-          binding.login.isEnabled = state.isLoggable
-          if (state.isLoading) {
-            binding.loading.visibility = View.VISIBLE
-            binding.login.isEnabled = false
-          } else {
-            binding.loading.visibility = View.GONE
-            if (state.isGranted == true){
-              startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
-              finish()
-            } else if (state.isGranted == false) {
-              Toast.makeText(this@LoginActivity, "permission denied", Toast.LENGTH_LONG).show()
-            }
-          }
-        }
-      }
-    }
-
     // Handle login button click
     binding.login.setOnClickListener {
       loginViewModel.onLoginClicked()
+    }
+
+    // Collect UI state to update UI
+    lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        loginViewModel.uiState.collect {
+          // Show Loading
+          binding.loading.isVisible = it.isLoading
+          // Enable Login
+          binding.login.isEnabled = it.isLoggable && !it.isLoading
+          // Show Error if any
+          it.isError?.let{Toast.makeText(this@LoginActivity, it, Toast.LENGTH_LONG).show()}
+          // Navigate if granted
+          it.isGranted?.let{
+            if (it) {
+                startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
+                finish()
+            } else {Toast.makeText(this@LoginActivity, "permission denied", Toast.LENGTH_LONG).show()}
+          }
+//          binding.login.isEnabled = state.isLoggable
+//          if (state.isLoading) {
+//            binding.loading.visibility = View.VISIBLE
+//            binding.login.isEnabled = false
+//          } else {
+//            binding.loading.visibility = View.GONE
+//            if (state.isGranted == true){
+//              startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
+//              finish()
+//            } else if (state.isGranted == false) {
+//              Toast.makeText(this@LoginActivity, "permission denied", Toast.LENGTH_LONG).show()
+//            }
+//          }
+        }
+      }
     }
   }
 }

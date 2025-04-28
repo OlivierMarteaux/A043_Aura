@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.aura.AuraApplication
+import com.aura.data.model.ServerConnection
 import com.aura.data.repository.LoginRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,11 +28,12 @@ import kotlinx.coroutines.launch
  *                     used to show or hide a loading indicator.
  */
 data class LoginUiState(
-    val identifier: String,
-    val password: String,
-    val isLoggable: Boolean,
+    val identifier: String = "",
+    val password: String = "",
+    val isLoggable: Boolean = false,
     val isLoading: Boolean = false,
     val isGranted: Boolean? = null,
+    val isError: String? = null,
 )
 
 //sealed class ServerResponse {
@@ -116,11 +118,41 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
      *
      * This function does not directly navigate or display messages—those should be handled by observing [uiState] from the UI layer.
      */
-    fun onLoginClicked(){
+    fun onLoginClicked() {
         viewModelScope.launch {
-            _uiState.update { currentState -> currentState.copy(isLoading = true) }
-            val granted = with(uiState.value) {loginRepository.login(identifier, password)}
-            _uiState.update { currentState -> currentState.copy(isGranted = granted, isLoading = false) }
+            _uiState.update { it.copy(isLoading = true) }
+            val serverConnection =
+                with(uiState.value) { loginRepository.login(identifier, password) }
+//            _uiState.update { currentState -> currentState.copy(isGranted = granted, isLoading = false) }
+//            try {
+//                val granted = with(uiState.value) {loginRepository.login(identifier, password)}
+//                _uiState.update { currentState -> currentState.copy(isGranted = granted, isLoading = false) }
+//            } catch (e: Exception) {
+//                TODO("Not yet implemented")
+//            }
+            when (serverConnection) {
+                is ServerConnection.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isGranted = serverConnection.data,
+                            isLoading = false
+                        )
+                    }
+                }
+
+                is ServerConnection.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isError = serverConnection.exception.message ?: "Unknown error",
+                            isLoading = false
+                        )
+                    }
+                }
+
+                is ServerConnection.Loading -> {
+                    _uiState.update { it.copy(isLoading = true) }
+                }
+            }
         }
     }
 
