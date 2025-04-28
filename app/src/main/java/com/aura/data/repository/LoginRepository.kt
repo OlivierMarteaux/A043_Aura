@@ -20,7 +20,7 @@ interface LoginRepository{
      * @return `true` if login is successful (access granted), `false` otherwise.
      * @throws Exception if the network request fails or the server returns an error.
      */
-    suspend fun login(id: String, password: String): ServerConnection<Boolean>
+    suspend fun login(id: String, password: String): ServerConnection
 }
 
 /**
@@ -32,7 +32,7 @@ interface LoginRepository{
  * @param auraClient The Retrofit service interface used to make network requests.
  */
 class NetworkLoginRepository(private val auraClient: AuraClient): LoginRepository {
-    override suspend fun login(id: String, password: String): ServerConnection<Boolean> {
+    override suspend fun login(id: String, password: String): ServerConnection {
         return try {
             ServerConnection.Loading
             delay(1000)

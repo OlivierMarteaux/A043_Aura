@@ -37,13 +37,6 @@ data class LoginUiState(
     val isError: String? = null,
 )
 
-//sealed class ServerResponse {
-//    data class Success(val granted: Boolean) : ServerResponse()
-//    data class Error(val errorMessage: String) : ServerResponse()
-//    object Loading : ServerResponse()
-//    object Idle : ServerResponse()
-//}
-
 /**
  * ViewModel responsible for managing the state of the login screen.
  *
