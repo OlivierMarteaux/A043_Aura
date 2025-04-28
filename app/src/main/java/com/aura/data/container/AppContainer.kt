@@ -31,8 +31,8 @@ interface AppContainer{
 class NetworkAppContainer: AppContainer{
 
     /** Use 10.0.2.2 for Android emulator, or the local IP of your machine for a physical device */
-    private val baseUrl = "http://10.0.2.2:8080"
-    //private val baseUrl = "http://192.168.10.48:8080"
+    //private val baseUrl = "http://10.0.2.2:8080"
+    private val baseUrl = "http://192.168.10.48:8080"
 
     /** JSON configuration using kotlinx.serialization */
     private val json = Json {

@@ -3,6 +3,7 @@ package com.aura.data.repository
 import com.aura.data.model.LoginRequest
 import com.aura.data.model.ServerConnection
 import com.aura.data.network.AuraClient
+import kotlinx.coroutines.delay
 
 /**
  * Repository interface responsible for handling user authentication logic.
@@ -33,6 +34,8 @@ interface LoginRepository{
 class NetworkLoginRepository(private val auraClient: AuraClient): LoginRepository {
     override suspend fun login(id: String, password: String): ServerConnection<Boolean> {
         return try {
+            ServerConnection.Loading
+            delay(1000)
             val loginRequest = LoginRequest(id, password)
             val loginResponse = auraClient.login(loginRequest)
             ServerConnection.Success(loginResponse.granted)

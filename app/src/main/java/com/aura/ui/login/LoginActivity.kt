@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.aura.databinding.ActivityLoginBinding
 import com.aura.ui.home.HomeActivity
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -71,29 +72,19 @@ class LoginActivity : AppCompatActivity()
           // Enable Login
           binding.login.isEnabled = it.isLoggable && !it.isLoading
           // Show Error if any
-          it.isError?.let{Toast.makeText(this@LoginActivity, it, Toast.LENGTH_LONG).show()}
+          it.isError?.let{ toast(it) }
           // Navigate if granted
-          it.isGranted?.let{
-            if (it) {
+          it.isGranted?.let { when (it) { true -> {
                 startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
                 finish()
-            } else {Toast.makeText(this@LoginActivity, "permission denied", Toast.LENGTH_LONG).show()}
-          }
-//          binding.login.isEnabled = state.isLoggable
-//          if (state.isLoading) {
-//            binding.loading.visibility = View.VISIBLE
-//            binding.login.isEnabled = false
-//          } else {
-//            binding.loading.visibility = View.GONE
-//            if (state.isGranted == true){
-//              startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
-//              finish()
-//            } else if (state.isGranted == false) {
-//              Toast.makeText(this@LoginActivity, "permission denied", Toast.LENGTH_LONG).show()
-//            }
-//          }
+          } else -> { toast("permission denied") }}}
         }
       }
     }
+  }
+
+  private suspend fun toast(message: String) {
+    Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT).show()
+    loginViewModel.resetUiState()
   }
 }

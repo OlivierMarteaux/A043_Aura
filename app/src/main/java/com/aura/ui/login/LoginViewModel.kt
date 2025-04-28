@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.aura.AuraApplication
 import com.aura.data.model.ServerConnection
 import com.aura.data.repository.LoginRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -57,10 +58,6 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
     private val _uiState = MutableStateFlow(LoginUiState("", "", false))
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
-//    // Expose server response
-//    private val _serverResponse = MutableStateFlow<ServerResponse>(ServerResponse.Idle)
-//    val serverResponse: StateFlow<ServerResponse> = _serverResponse.asStateFlow()
-
     /**
      * Updates the identifier field in the UI state.
      *
@@ -70,10 +67,9 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
      * @param identifier The new identifier value entered by the user.
      */
     fun getIdentifier(identifier:String){
-        _uiState.update { currentState ->
-            currentState.copy(
-                identifier = identifier,
-                isLoggable = isLoggable(),
+        _uiState.update { it.copy(
+            identifier = identifier,
+            isLoggable = isLoggable(),
             )
         }
     }
@@ -87,10 +83,9 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
      * @param password The new password value entered by the user.
      */
     fun getPassword(password:String){
-        _uiState.update { currentState ->
-            currentState.copy(
-                password = password,
-                isLoggable = isLoggable(),
+        _uiState.update { it.copy(
+            password = password,
+            isLoggable = isLoggable(),
             )
         }
     }
@@ -120,39 +115,46 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
      */
     fun onLoginClicked() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _uiState.update { it.copy(
+                    isGranted = null,
+                    isLoading = true,
+                    isError = null,
+                )
+            }
             val serverConnection =
                 with(uiState.value) { loginRepository.login(identifier, password) }
-//            _uiState.update { currentState -> currentState.copy(isGranted = granted, isLoading = false) }
-//            try {
-//                val granted = with(uiState.value) {loginRepository.login(identifier, password)}
-//                _uiState.update { currentState -> currentState.copy(isGranted = granted, isLoading = false) }
-//            } catch (e: Exception) {
-//                TODO("Not yet implemented")
-//            }
+
             when (serverConnection) {
                 is ServerConnection.Success -> {
-                    _uiState.update {
-                        it.copy(
+                    _uiState.update { it.copy(
                             isGranted = serverConnection.data,
-                            isLoading = false
+                            isLoading = false,
+                            isError = null,
                         )
                     }
                 }
 
                 is ServerConnection.Error -> {
-                    _uiState.update {
-                        it.copy(
+                    _uiState.update { it.copy(
+                            isGranted = null,
+                            isLoading = false,
                             isError = serverConnection.exception.message ?: "Unknown error",
-                            isLoading = false
                         )
                     }
                 }
 
-                is ServerConnection.Loading -> {
-                    _uiState.update { it.copy(isLoading = true) }
-                }
+                is ServerConnection.Loading -> { _uiState.update { it.copy(isLoading = true) } }
             }
+        }
+    }
+
+    suspend fun resetUiState(){
+        delay(500)
+        _uiState.update { it.copy(
+                isGranted = null,
+                isLoading = false,
+                isError = null,
+            )
         }
     }
 
@@ -180,23 +182,4 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
             }
         }
     }
-
 }
-//
-//serverResponse.collect{ response ->
-//    when(response){
-//        is ServerResponse.Success -> {
-//            _uiState.update { currentState -> currentState.copy(isGranted = response.granted) }
-//        }
-//        is ServerResponse.Error -> {
-//            _uiState.update { currentState -> currentState.copy(isLoading = false) }
-//
-//        }
-//        is ServerResponse.Loading -> {
-//            _uiState.update { currentState -> currentState.copy(isLoading = true) }
-//        }
-//        is ServerResponse.Idle -> {
-//            _uiState.update { currentState -> currentState.copy(isLoading = false) }
-//        }
-//    }
-//}
