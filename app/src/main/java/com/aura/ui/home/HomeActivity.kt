@@ -67,8 +67,9 @@ class HomeActivity : AppCompatActivity()
     {
       R.id.disconnect ->
       {
-        startActivity(Intent(this@HomeActivity, LoginActivity::class.java))
-        finish()
+//        startActivity(Intent(this@HomeActivity, LoginActivity::class.java))
+//        finish()
+        finishAffinity()
         true
       }
       else            -> super.onOptionsItemSelected(item)

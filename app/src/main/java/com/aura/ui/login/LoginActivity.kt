@@ -2,18 +2,19 @@ package com.aura.ui.login
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
 import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.aura.databinding.ActivityLoginBinding
 import com.aura.ui.home.HomeActivity
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -32,16 +33,14 @@ import kotlinx.coroutines.launch
  */
 class LoginActivity : AppCompatActivity()
 {
-
   /**
    * The binding for the login layout.
    */
   private lateinit var binding: ActivityLoginBinding
-
   /**
    * The ViewModel for handling login logic.
    */
-  private val loginViewModel: LoginViewModel by viewModels()
+  private val loginViewModel: LoginViewModel by viewModels {LoginViewModel.Factory}
 
   override fun onCreate(savedInstanceState: Bundle?)
   {
@@ -51,31 +50,56 @@ class LoginActivity : AppCompatActivity()
     setContentView(binding.root)
 
     // Add text change listener to identifier
-    binding.identifier.doOnTextChanged { text, _, _, _ ->
-      loginViewModel.getIdentifier(text.toString())
-    }
+    binding.identifier
+      .doOnTextChanged { text, _, _, _ ->
+        loginViewModel.getIdentifier(text.toString()) }
 
     // Add text change listener to password
     binding.password.doOnTextChanged { text, _, _, _ ->
       loginViewModel.getPassword(text.toString())
     }
 
+    // Handle login button click
+    binding.login.setOnClickListener {
+      binding.root.hideKeyboard()
+      loginViewModel.onLoginClicked()
+    }
+
+    // Close keyboard on focus change
+    binding.identifier.setOnFocusChangeListener { _, hasFocus ->
+      if (!hasFocus) binding.root.hideKeyboard()
+    }
+    binding.password.setOnFocusChangeListener { _, hasFocus ->
+      if (!hasFocus) binding.root.hideKeyboard()
+    }
+
     // Collect UI state to update UI
     lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
-        loginViewModel.uiState.collect { state ->
-          binding.loading.visibility = if (state.isLoading) View.VISIBLE else View.GONE
-          binding.login.isEnabled = state.isLoggable
+        loginViewModel.uiState.collect {
+          // Show Loading
+          binding.loading.isVisible = it.isLoading
+          // Enable Login
+          binding.login.isEnabled = it.isLoggable && !it.isLoading
+          // Show Error if any
+          it.isError?.let{ toast(it) }
+          // Navigate if granted
+          it.isGranted?.let { when (it) { true -> {
+                startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
+                finish()
+          } else -> { toast("permission denied") }}}
         }
       }
     }
+  }
 
-    // Handle login button click
-    binding.login.setOnClickListener {
-      loginViewModel.onLoginClicked()
-      startActivity(Intent(this, HomeActivity::class.java))
-      finish()
+  private suspend fun toast(message: String) {
+    Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT).show()
+    loginViewModel.resetUiState()
+  }
 
-    }
+  private fun View.hideKeyboard() {
+    val imm = getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.hideSoftInputFromWindow(windowToken, 0)
   }
 }
