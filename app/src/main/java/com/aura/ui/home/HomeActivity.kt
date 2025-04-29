@@ -2,15 +2,20 @@ package com.aura.ui.home
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.aura.R
 import com.aura.databinding.ActivityHomeBinding
-import com.aura.ui.login.LoginActivity
 import com.aura.ui.transfer.TransferActivity
+import kotlinx.coroutines.launch
 
 /**
  * HomeActivity is the main screen shown after a successful login.
@@ -30,6 +35,8 @@ class HomeActivity : AppCompatActivity()
    */
   private lateinit var binding: ActivityHomeBinding
 
+  private val homeViewModel: HomeViewModel by viewModels { HomeViewModel.Factory}
+
   /**
    * A callback for the result of starting the TransferActivity.
    */
@@ -48,7 +55,17 @@ class HomeActivity : AppCompatActivity()
     val balance = binding.balance
     val transfer = binding.transfer
 
-    balance.text = "2654,54€"
+    lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        homeViewModel.uiState.collect {
+          balance.text = homeViewModel.getBalance().toString()
+          Log.d("HomeActivity", "identifier: ${it.identifier}")
+          Log.d("HomeActivity", "accounts: ${it.accounts}")
+          Log.d("HomeActivity", "isLoading: ${it.isLoading}")
+          Log.d("HomeActivity", "error: ${it.isError}")
+        }
+      }
+      }
 
     transfer.setOnClickListener {
       startTransferActivityForResult.launch(Intent(this@HomeActivity, TransferActivity::class.java))
@@ -70,6 +87,7 @@ class HomeActivity : AppCompatActivity()
 //        startActivity(Intent(this@HomeActivity, LoginActivity::class.java))
 //        finish()
         finishAffinity()
+//        System.exit(0) // to force killing the app
         true
       }
       else            -> super.onOptionsItemSelected(item)
