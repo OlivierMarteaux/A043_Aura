@@ -3,6 +3,7 @@ package com.aura.ui.login
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -49,9 +50,9 @@ class LoginActivity : AppCompatActivity()
     setContentView(binding.root)
 
     // Add text change listener to identifier
-    binding.identifier.doOnTextChanged { text, _, _, _ ->
-      loginViewModel.getIdentifier(text.toString())
-    }
+    binding.identifier
+      .doOnTextChanged { text, _, _, _ ->
+        loginViewModel.getIdentifier(text.toString()) }
 
     // Add text change listener to password
     binding.password.doOnTextChanged { text, _, _, _ ->
@@ -60,7 +61,16 @@ class LoginActivity : AppCompatActivity()
 
     // Handle login button click
     binding.login.setOnClickListener {
+      binding.root.hideKeyboard()
       loginViewModel.onLoginClicked()
+    }
+
+    // Close keyboard on focus change
+    binding.identifier.setOnFocusChangeListener { _, hasFocus ->
+      if (!hasFocus) binding.root.hideKeyboard()
+    }
+    binding.password.setOnFocusChangeListener { _, hasFocus ->
+      if (!hasFocus) binding.root.hideKeyboard()
     }
 
     // Collect UI state to update UI
@@ -86,5 +96,10 @@ class LoginActivity : AppCompatActivity()
   private suspend fun toast(message: String) {
     Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT).show()
     loginViewModel.resetUiState()
+  }
+
+  private fun View.hideKeyboard() {
+    val imm = getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.hideSoftInputFromWindow(windowToken, 0)
   }
 }
