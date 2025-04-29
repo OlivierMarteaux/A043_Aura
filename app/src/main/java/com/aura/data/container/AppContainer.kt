@@ -1,7 +1,6 @@
 package com.aura.data.container
 
 import com.aura.data.network.AuraClient
-import com.aura.data.repository.CredentialsRepository
 import com.aura.data.repository.LoginRepository
 import com.aura.data.repository.NetworkLoginRepository
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -17,8 +16,6 @@ import retrofit2.Retrofit
  */
 interface AppContainer{
     val loginRepository: LoginRepository
-    val credentialsRepository: CredentialsRepository
-
 }
 
 /**
@@ -61,10 +58,4 @@ class NetworkAppContainer: AppContainer{
     override val loginRepository: LoginRepository by lazy {
         NetworkLoginRepository(auraClient)
     }
-
-    override val credentialsRepository: CredentialsRepository by lazy {
-        CredentialsRepository()
-    }
-
-
 }
