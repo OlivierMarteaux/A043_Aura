@@ -1,9 +1,15 @@
 package com.aura
 
 import android.app.Application
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import com.aura.data.container.AppContainer
 import com.aura.data.container.NetworkAppContainer
 
+private val CREDENTIALS = "credentials"
+private val Context.datastore: DataStore<Preferences> by preferencesDataStore(name = CREDENTIALS)
 /**
  * Custom [Application] class for the Aura app.
  *
