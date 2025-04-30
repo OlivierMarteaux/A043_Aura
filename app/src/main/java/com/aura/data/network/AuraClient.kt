@@ -3,6 +3,8 @@ package com.aura.data.network
 import com.aura.data.model.Account
 import com.aura.data.model.LoginRequest
 import com.aura.data.model.LoginResponse
+import com.aura.data.model.Transfer
+import com.aura.data.model.TransferResult
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -15,7 +17,7 @@ import retrofit2.http.Path
  * expected request/response models for each call. It uses Retrofit's
  * HTTP annotations to describe the structure of network requests.
  */
-interface AuraClient{
+interface AuraClient {
     /**
      * Sends a login request to the server.
      *
@@ -31,7 +33,9 @@ interface AuraClient{
     @POST("login")
     suspend fun login(@Body loginRequest: LoginRequest): LoginResponse
 
-    @GET("accounts/{id}")
-        suspend fun getAccounts(@Path("id") id: String): List<Account>
+    @POST("transfer")
+    suspend fun doTransfer(@Body transfer: Transfer): TransferResult
 
+    @GET("accounts/{id}")
+    suspend fun getAccounts(@Path("id") id: String): List<Account>
 }

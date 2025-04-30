@@ -14,7 +14,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.aura.databinding.ActivityLoginBinding
 import com.aura.ui.home.HomeActivity
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -86,7 +85,7 @@ class LoginActivity : AppCompatActivity()
           // Show Loading
           binding.loading.isVisible = it.isLoading
           // Enable Login
-          binding.login.isEnabled = it.isLoggable && !it.isLoading
+          binding.login.isEnabled = it.isLoginEnabled && !it.isLoading
           // Show Error if any
           it.isError?.let{ toast(it) }
           // Navigate if granted
@@ -105,7 +104,7 @@ class LoginActivity : AppCompatActivity()
   }
 
   private fun View.hideKeyboard() {
-    val imm = getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
+    val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
     imm.hideSoftInputFromWindow(windowToken, 0)
   }
 }

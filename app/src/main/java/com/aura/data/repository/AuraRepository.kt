@@ -4,6 +4,7 @@ import android.util.Log
 import com.aura.data.model.Account
 import com.aura.data.model.LoginRequest
 import com.aura.data.model.ServerConnection
+import com.aura.data.model.Transfer
 import com.aura.data.network.AuraClient
 import kotlinx.coroutines.delay
 
@@ -24,6 +25,7 @@ interface AuraRepository{
      */
     suspend fun login(id: String, password: String): ServerConnection<Boolean>
     suspend fun getAccounts(id: String): ServerConnection<List<Account>>
+    suspend fun doTransfer(sender: String, recipient: String, amount: Double): ServerConnection<Boolean>
 }
 
 /**
@@ -39,7 +41,6 @@ class NetworkAuraRepository(private val auraClient: AuraClient): AuraRepository 
     override suspend fun login(id: String, password: String): ServerConnection<Boolean> {
         return try {
             ServerConnection.Loading
-            delay(1000)
             val loginRequest = LoginRequest(id, password)
             val loginResponse = auraClient.login(loginRequest)
             ServerConnection.Success(loginResponse.granted)
@@ -50,9 +51,19 @@ class NetworkAuraRepository(private val auraClient: AuraClient): AuraRepository 
     override suspend fun getAccounts(id: String): ServerConnection<List<Account>> {
         return try {
             ServerConnection.Loading
-            delay(3000)
             val accounts = auraClient.getAccounts(id)
             ServerConnection.Success(accounts)
+        } catch (e: Exception) {
+            ServerConnection.Error(e)
+        }
+    }
+    override suspend fun doTransfer(sender: String, recipient: String, amount: Double): ServerConnection<Boolean> {
+        return try {
+            ServerConnection.Loading
+            Log.d("OM_TAG", "RepositorydoTransfer: $sender $recipient $amount")
+            val transfer = Transfer(sender, recipient, amount)
+            val transferResult = auraClient.doTransfer(transfer)
+            ServerConnection.Success(transferResult.result)
         } catch (e: Exception) {
             ServerConnection.Error(e)
         }
