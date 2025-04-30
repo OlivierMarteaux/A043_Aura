@@ -4,6 +4,12 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   >
   <item
+      android:id="@+id/refresh"
+      android:icon="@drawable/ic_refresh"
+      android:title="@string/refresh"
+      app:showAsAction="ifRoom"
+      />
+  <item
     android:id="@+id/disconnect"
     android:icon="@drawable/ic_logout"
     android:title="@string/disconnect"

@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class HomeUiState(
+    val identifier: String = "",
     val accounts: List<Account> = emptyList(),
     val isLoading: Boolean = false,
     val isError: String? = null,
@@ -37,58 +38,66 @@ class HomeViewModel(
     init {
         viewModelScope.launch {
             userPreferencesRepository.userInput.collect { storedId ->
-                getAccounts(storedId)
+                _uiState.update {
+                    it.copy(
+                        identifier = storedId,
+                    )
+                }
             }
         }
+        getAccounts()
     }
 
     private fun getBalance(accounts: List<Account>): Double {
         return accounts.sumOf { it.balance }
     }
 
-    private suspend fun getAccounts(identifier: String) {
-        // reset uiState:
-        _uiState.update {
-            it.copy(
-                accounts = emptyList(),
-                isLoading = true,
-                isError = null,
-            )
-        }
-        // get accounts from repository:
-        when (val result = auraRepository.getAccounts(identifier)) {
-
-            is ServerConnection.Success -> {
-                Log.d("HomeViewModel", "Success")
-                _uiState.update {
-                    it.copy(
-                        accounts = result.data,
-                        isLoading = false,
-                        isError = null,
-                        balance = getBalance(result.data),
-                    )
-                }
+    fun getAccounts() {
+        viewModelScope.launch {
+            val identifier = uiState.value.identifier
+            // reset uiState:
+            _uiState.update {
+                it.copy(
+                    accounts = emptyList(),
+                    isLoading = true,
+                    isError = null,
+                )
             }
+            // get accounts from repository:
+            when (val result = auraRepository.getAccounts(identifier)) {
 
-            is ServerConnection.Loading -> {
-                Log.d("HomeViewModel", "Loading")
-                _uiState.update {
-                    it.copy(
-                        accounts = emptyList(),
-                        isLoading = true,
-                        isError = null,
-                    )
+                is ServerConnection.Success -> {
+                    Log.d("HomeViewModel", "Success")
+                    _uiState.update {
+                        it.copy(
+                            accounts = result.data,
+                            isLoading = false,
+                            isError = null,
+                            balance = getBalance(result.data),
+                        )
+                    }
                 }
-            }
 
-            is ServerConnection.Error -> {
-                Log.d("HomeViewModel", "Error: ${result.exception.message ?: "unknown error"}")
-                _uiState.update {
-                    it.copy(
-                        accounts = emptyList(),
-                        isLoading = false,
-                        isError = result.exception.message ?: "Unknown error",
-                    )
+                is ServerConnection.Loading -> {
+                    Log.d("HomeViewModel", "Loading")
+                    _uiState.update {
+                        it.copy(
+                            accounts = emptyList(),
+                            isLoading = true,
+                            isError = null,
+                        )
+                    }
+                }
+
+                is ServerConnection.Error -> {
+                    Log.d("HomeViewModel", "Error: ${result.exception.message ?: "unknown error"}")
+                    _uiState.update {
+                        it.copy(
+                            accounts = emptyList(),
+                            isLoading = false,
+                            isError = result.exception.message ?: "Unknown error",
+                        )
+                    }
                 }
             }
         }
