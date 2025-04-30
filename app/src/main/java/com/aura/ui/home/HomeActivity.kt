@@ -2,7 +2,6 @@ package com.aura.ui.home
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -91,6 +90,11 @@ class HomeActivity : AppCompatActivity()
 //        finish()
         finishAffinity()
 //        System.exit(0) // to force killing the app
+        true
+      }
+      R.id.refresh ->
+        {
+          homeViewModel.getAccounts()
         true
       }
       else            -> super.onOptionsItemSelected(item)

@@ -50,7 +50,7 @@ class NetworkAuraRepository(private val auraClient: AuraClient): AuraRepository 
     override suspend fun getAccounts(id: String): ServerConnection<List<Account>> {
         return try {
             ServerConnection.Loading
-            delay(1000)
+            delay(3000)
             val accounts = auraClient.getAccounts(id)
             ServerConnection.Success(accounts)
         } catch (e: Exception) {
