@@ -50,9 +50,12 @@ class LoginActivity : AppCompatActivity()
     setContentView(binding.root)
 
     // Add text change listener to identifier
-    binding.identifier
-      .doOnTextChanged { text, _, _, _ ->
-        loginViewModel.getIdentifier(text.toString()) }
+    binding.identifier.apply {
+      doOnTextChanged { text, _, _, _ ->
+      loginViewModel.getIdentifier(text.toString())
+      loginViewModel.saveUserInput(text.toString())
+    }
+    }
 
     // Add text change listener to password
     binding.password.doOnTextChanged { text, _, _, _ ->
@@ -77,6 +80,9 @@ class LoginActivity : AppCompatActivity()
     lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
         loginViewModel.uiState.collect {
+          if (binding.identifier.text.toString() != it.identifier) {
+            binding.identifier.setText(it.identifier)
+          }
           // Show Loading
           binding.loading.isVisible = it.isLoading
           // Enable Login

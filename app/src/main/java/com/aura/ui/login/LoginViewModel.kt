@@ -8,7 +8,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.aura.AuraApplication
 import com.aura.data.model.ServerConnection
-import com.aura.data.repository.LoginRepository
+import com.aura.data.repository.AuraRepository
+import com.aura.data.repository.UserPreferencesRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,8 +30,8 @@ import kotlinx.coroutines.launch
  *                     used to show or hide a loading indicator.
  */
 data class LoginUiState(
-    val identifier: String = "",
-    val password: String = "",
+    val identifier: String,
+    val password: String,
     val isLoggable: Boolean = false,
     val isLoading: Boolean = false,
     val isGranted: Boolean? = null,
@@ -45,11 +46,26 @@ data class LoginUiState(
  *
  * State is exposed as an immutable [StateFlow] to be observed by the UI.
  */
-class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() {
+class LoginViewModel(
+    private val auraRepository: AuraRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
+): ViewModel() {
 
     // Expose screen UI state
     private val _uiState = MutableStateFlow(LoginUiState("", "", false))
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            userPreferencesRepository.userInput.collect { storedId ->
+                _uiState.update { it.copy(
+                    identifier = storedId,
+                    isLoggable = isLoggable(),
+                    )
+                }
+            }
+        }
+    }
 
     /**
      * Updates the identifier field in the UI state.
@@ -80,6 +96,12 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
             password = password,
             isLoggable = isLoggable(),
             )
+        }
+    }
+
+    fun saveUserInput(identifier: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.saveUserInput(identifier)
         }
     }
 
@@ -115,7 +137,7 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
                 )
             }
             val serverConnection =
-                with(uiState.value) { loginRepository.login(identifier, password) }
+                with(uiState.value) { auraRepository.login(identifier, password) }
 
             when (serverConnection) {
                 is ServerConnection.Success -> {
@@ -155,7 +177,7 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
      * Factory for creating an instance of [LoginViewModel] with application-level dependencies.
      *
      * This factory uses the [viewModelFactory] initializer DSL from the Jetpack `lifecycle-viewmodel-ktx` library
-     * to access the [Application] context and retrieve the required dependencies (in this case, the [LoginRepository]).
+     * to access the [Application] context and retrieve the required dependencies (in this case, the [AuraRepository]).
      *
      * It casts the application instance to [AuraApplication], which exposes an [AppContainer] holding the repository.
      * This pattern ensures that the ViewModel can be created with the necessary dependencies without requiring
@@ -170,8 +192,10 @@ class LoginViewModel(private val loginRepository: LoginRepository): ViewModel() 
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AuraApplication)
-                val loginRepository = application.container.loginRepository
-                LoginViewModel(loginRepository = loginRepository)
+                LoginViewModel(
+                    auraRepository = application.container.auraRepository,
+                    userPreferencesRepository = application.userPreferencesRepository,
+                    )
             }
         }
     }

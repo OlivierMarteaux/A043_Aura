@@ -2,15 +2,22 @@ package com.aura.ui.home
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.aura.R
 import com.aura.databinding.ActivityHomeBinding
-import com.aura.ui.login.LoginActivity
 import com.aura.ui.transfer.TransferActivity
+import kotlinx.coroutines.launch
 
 /**
  * HomeActivity is the main screen shown after a successful login.
@@ -30,6 +37,8 @@ class HomeActivity : AppCompatActivity()
    */
   private lateinit var binding: ActivityHomeBinding
 
+  private val homeViewModel: HomeViewModel by viewModels { HomeViewModel.Factory}
+
   /**
    * A callback for the result of starting the TransferActivity.
    */
@@ -48,7 +57,18 @@ class HomeActivity : AppCompatActivity()
     val balance = binding.balance
     val transfer = binding.transfer
 
-    balance.text = "2654,54€"
+    lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        homeViewModel.uiState.collect {
+          // Show error if any
+          it.isError?.let{ toast(it) }
+          // Show Loading
+          binding.loading.isVisible = it.isLoading
+          // Get balance
+          balance.text = it.balance.toString()
+        }
+      }
+    }
 
     transfer.setOnClickListener {
       startTransferActivityForResult.launch(Intent(this@HomeActivity, TransferActivity::class.java))
@@ -70,10 +90,15 @@ class HomeActivity : AppCompatActivity()
 //        startActivity(Intent(this@HomeActivity, LoginActivity::class.java))
 //        finish()
         finishAffinity()
+//        System.exit(0) // to force killing the app
         true
       }
       else            -> super.onOptionsItemSelected(item)
     }
   }
 
+  private suspend fun toast(message: String) {
+    Toast.makeText(this@HomeActivity, message, Toast.LENGTH_SHORT).show()
+    homeViewModel.resetUiState()
+  }
 }

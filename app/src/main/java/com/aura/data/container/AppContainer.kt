@@ -1,8 +1,8 @@
 package com.aura.data.container
 
 import com.aura.data.network.AuraClient
-import com.aura.data.repository.LoginRepository
-import com.aura.data.repository.NetworkLoginRepository
+import com.aura.data.repository.AuraRepository
+import com.aura.data.repository.NetworkAuraRepository
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -15,7 +15,7 @@ import retrofit2.Retrofit
  * a single access point for core components such as repositories.
  */
 interface AppContainer{
-    val loginRepository: LoginRepository
+    val auraRepository: AuraRepository
 }
 
 /**
@@ -25,7 +25,7 @@ interface AppContainer{
  * a REST API using [kotlinx.serialization] and JSON. The base URL depends on the
  * environment (emulator or physical device).
  *
- * This container initializes [LoginRepository] with an instance of [AuraClient]
+ * This container initializes [AuraRepository] with an instance of [AuraClient]
  * using lazy loading to avoid unnecessary resource allocation.
  */
 class NetworkAppContainer: AppContainer{
@@ -55,7 +55,7 @@ class NetworkAppContainer: AppContainer{
     }
 
     /** Lazily initialized repository used for login operations */
-    override val loginRepository: LoginRepository by lazy {
-        NetworkLoginRepository(auraClient)
+    override val auraRepository: AuraRepository by lazy {
+        NetworkAuraRepository(auraClient)
     }
 }

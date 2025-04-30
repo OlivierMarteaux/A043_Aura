@@ -1,9 +1,12 @@
 package com.aura.data.network
 
+import com.aura.data.model.Account
 import com.aura.data.model.LoginRequest
 import com.aura.data.model.LoginResponse
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 /**
  * Retrofit service interface for communicating with the Aura backend API.
@@ -27,4 +30,8 @@ interface AuraClient{
      */
     @POST("login")
     suspend fun login(@Body loginRequest: LoginRequest): LoginResponse
+
+    @GET("accounts/{id}")
+        suspend fun getAccounts(@Path("id") id: String): List<Account>
+
 }
