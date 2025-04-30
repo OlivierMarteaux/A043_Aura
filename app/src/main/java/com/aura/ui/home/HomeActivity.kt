@@ -5,10 +5,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -58,14 +60,15 @@ class HomeActivity : AppCompatActivity()
     lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
         homeViewModel.uiState.collect {
-          balance.text = homeViewModel.getBalance().toString()
-          Log.d("HomeActivity", "identifier: ${it.identifier}")
-          Log.d("HomeActivity", "accounts: ${it.accounts}")
-          Log.d("HomeActivity", "isLoading: ${it.isLoading}")
-          Log.d("HomeActivity", "error: ${it.isError}")
+          // Show error if any
+          it.isError?.let{ toast(it) }
+          // Show Loading
+          binding.loading.isVisible = it.isLoading
+          // Get balance
+          balance.text = it.balance.toString()
         }
       }
-      }
+    }
 
     transfer.setOnClickListener {
       startTransferActivityForResult.launch(Intent(this@HomeActivity, TransferActivity::class.java))
@@ -94,4 +97,8 @@ class HomeActivity : AppCompatActivity()
     }
   }
 
+  private suspend fun toast(message: String) {
+    Toast.makeText(this@HomeActivity, message, Toast.LENGTH_SHORT).show()
+    homeViewModel.resetUiState()
+  }
 }
