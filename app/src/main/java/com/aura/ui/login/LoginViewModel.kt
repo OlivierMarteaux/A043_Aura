@@ -1,6 +1,5 @@
 package com.aura.ui.login
 
-import android.util.Log.isLoggable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -24,7 +23,7 @@ import kotlinx.coroutines.launch
  *
  * @property identifier The user's input for the login identifier (e.g., username or email).
  * @property password The user's input for the login password.
- * @property isLoggable A flag indicating whether the login button should be enabled.
+ * @property isLoginEnabled A flag indicating whether the login button should be enabled.
  *                      Typically true when both [identifier] and [password] are not empty.
  * @property isLoading A flag indicating whether a login operation is in progress,
  *                     used to show or hide a loading indicator.
@@ -32,7 +31,7 @@ import kotlinx.coroutines.launch
 data class LoginUiState(
     val identifier: String,
     val password: String,
-    val isLoggable: Boolean = false,
+    val isLoginEnabled: Boolean = false,
     val isLoading: Boolean = false,
     val isGranted: Boolean? = null,
     val isError: String? = null,
@@ -60,7 +59,6 @@ class LoginViewModel(
             userPreferencesRepository.userInput.collect { storedId ->
                 _uiState.update { it.copy(
                     identifier = storedId,
-                    isLoggable = isLoggable(),
                     )
                 }
             }
@@ -70,7 +68,7 @@ class LoginViewModel(
     /**
      * Updates the identifier field in the UI state.
      *
-     * Also triggers a recalculation of [isLoggable] to determine
+     * Also triggers a recalculation of [isLoginEnabled] to determine
      * whether the login button should be enabled.
      *
      * @param identifier The new identifier value entered by the user.
@@ -78,7 +76,7 @@ class LoginViewModel(
     fun getIdentifier(identifier:String){
         _uiState.update { it.copy(
             identifier = identifier,
-            isLoggable = isLoggable(),
+            isLoginEnabled = isLoginEnabled(identifier, it.password),
             )
         }
     }
@@ -86,7 +84,7 @@ class LoginViewModel(
     /**
      * Updates the password field in the UI state.
      *
-     * Also triggers a recalculation of [isLoggable] to determine
+     * Also triggers a recalculation of [isLoginEnabled] to determine
      * whether the login button should be enabled.
      *
      * @param password The new password value entered by the user.
@@ -94,7 +92,7 @@ class LoginViewModel(
     fun getPassword(password:String){
         _uiState.update { it.copy(
             password = password,
-            isLoggable = isLoggable(),
+            isLoginEnabled = isLoginEnabled(it.identifier, password),
             )
         }
     }
@@ -110,8 +108,8 @@ class LoginViewModel(
      *
      * @return True if both identifier and password are not empty.
      */
-    private fun isLoggable() = with(uiState.value) {
-        identifier.isNotEmpty() && password.isNotEmpty()
+    private fun isLoginEnabled(identifier: String, password: String) : Boolean {
+        return identifier.isNotEmpty() && password.isNotEmpty()
     }
 
     /**

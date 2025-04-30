@@ -1,5 +1,6 @@
 package com.aura.ui.home
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -43,7 +44,10 @@ class HomeActivity : AppCompatActivity()
    */
   private val startTransferActivityForResult =
     registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-      //TODO
+      if (result.resultCode == Activity.RESULT_OK) {
+        // The transfer succeeded — refresh the balance here
+        homeViewModel.getAccounts()
+      }
     }
 
   override fun onCreate(savedInstanceState: Bundle?)
