@@ -38,6 +38,18 @@ interface AuraRepository{
  */
 class NetworkAuraRepository(private val auraClient: AuraClient): AuraRepository {
 
+    /**
+     * Attempts to log in a user with the provided credentials.
+     *
+     * Simulates a delay for development purposes, sends a login request,
+     * and returns the result wrapped in a [ServerConnection].
+     *
+     * @param id The user's identifier (e.g., username or email).
+     * @param password The user's password.
+     * @return A [ServerConnection] indicating the login result:
+     * - [ServerConnection.Success] with `true` if access is granted.
+     * - [ServerConnection.Error] if an exception occurs.
+     */
     override suspend fun login(id: String, password: String): ServerConnection<Boolean> {
         return try {
             ServerConnection.Loading
@@ -49,6 +61,17 @@ class NetworkAuraRepository(private val auraClient: AuraClient): AuraRepository 
             ServerConnection.Error(e)
         }
     }
+
+    /**
+     * Retrieves a list of accounts associated with the given user ID.
+     *
+     * Simulates a delay for development purposes and fetches account data
+     * from the remote source.
+     *
+     * @param id The user's identifier.
+     * @return A [ServerConnection] containing a list of [Account] objects if successful,
+     * or an [ServerConnection.Error] if an exception occurs.
+     */
     override suspend fun getAccounts(id: String): ServerConnection<List<Account>> {
         return try {
             ServerConnection.Loading
@@ -59,6 +82,18 @@ class NetworkAuraRepository(private val auraClient: AuraClient): AuraRepository 
             ServerConnection.Error(e)
         }
     }
+
+    /**
+     * Initiates a monetary transfer from one account to another.
+     *
+     * Simulates a delay for development purposes and sends a [Transfer] request
+     * to the remote service.
+     *
+     * @param sender The ID of the account sending funds.
+     * @param recipient The ID of the account receiving funds.
+     * @param amount The amount of money to transfer.
+     * @return A [ServerConnection] indicating success (`true`) or failure.
+     */
     override suspend fun doTransfer(sender: String, recipient: String, amount: Double): ServerConnection<Boolean> {
         return try {
             ServerConnection.Loading

@@ -26,6 +26,16 @@ data class HomeUiState(
     val balance: Double = 0.0,
 )
 
+/**
+ * ViewModel for managing the state and logic of the Home screen.
+ *
+ * Handles retrieving account information, observing stored user input from preferences,
+ * and computing the account balance. It exposes a [HomeUiState] via [uiState] to be observed
+ * by the UI layer.
+ *
+ * @property auraRepository Repository used to interact with the backend server for account operations.
+ * @property userPreferencesRepository Repository for accessing and observing user-stored preferences.
+ */
 class HomeViewModel(
     private val auraRepository: AuraRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
@@ -36,6 +46,7 @@ class HomeViewModel(
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
+        // Observe the stored user identifier and update the UI state accordingly.
         viewModelScope.launch {
             userPreferencesRepository.userInput.collect { storedId ->
                 _uiState.update {
@@ -45,13 +56,28 @@ class HomeViewModel(
                 }
             }
         }
+        // Automatically fetch accounts on initialization.
         getAccounts()
     }
 
+    /**
+     * Computes the total balance across all given accounts.
+     *
+     * @param accounts List of accounts.
+     * @return The total balance as a [Double].
+     */
     private fun getBalance(accounts: List<Account>): Double {
         return accounts.sumOf { it.balance }
     }
 
+    /**
+     * Retrieves the list of accounts associated with the current user identifier.
+     *
+     * Updates the UI state based on the result:
+     * - Shows loading state while fetching.
+     * - On success, populates the list and balance.
+     * - On error, displays an error message.
+     */
     fun getAccounts() {
         viewModelScope.launch {
             val identifier = uiState.value.identifier
