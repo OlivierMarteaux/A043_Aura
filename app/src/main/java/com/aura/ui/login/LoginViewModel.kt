@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
  *
  * @property identifier The user's input for the login identifier (e.g., username or email).
  * @property password The user's input for the login password.
- * @property isLoginEnabled A flag indicating whether the login button should be enabled.
+ * @property isEnabled A flag indicating whether the login button should be enabled.
  *                      Typically true when both [identifier] and [password] are not empty.
  * @property isLoading A flag indicating whether a login operation is in progress,
  *                     used to show or hide a loading indicator.
@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 data class LoginUiState(
     val identifier: String,
     val password: String,
-    val isLoginEnabled: Boolean = false,
+    val isEnabled: Boolean = false,
     val isLoading: Boolean = false,
     val isGranted: Boolean? = null,
     val isError: String? = null,
@@ -76,7 +76,7 @@ class LoginViewModel(
     fun getIdentifier(identifier:String){
         _uiState.update { it.copy(
             identifier = identifier,
-            isLoginEnabled = isLoginEnabled(identifier, it.password),
+            isEnabled = isLoginEnabled(identifier, it.password),
             )
         }
     }
@@ -92,7 +92,7 @@ class LoginViewModel(
     fun getPassword(password:String){
         _uiState.update { it.copy(
             password = password,
-            isLoginEnabled = isLoginEnabled(it.identifier, password),
+            isEnabled = isLoginEnabled(it.identifier, password),
             )
         }
     }
@@ -129,9 +129,10 @@ class LoginViewModel(
     fun onLoginClicked() {
         viewModelScope.launch {
             _uiState.update { it.copy(
-                    isGranted = null,
-                    isLoading = true,
-                    isError = null,
+                isGranted = null,
+                isLoading = true,
+                isError = null,
+                isEnabled = false
                 )
             }
             val serverConnection =
@@ -140,33 +141,44 @@ class LoginViewModel(
             when (serverConnection) {
                 is ServerConnection.Success -> {
                     _uiState.update { it.copy(
-                            isGranted = serverConnection.data,
-                            isLoading = false,
-                            isError = null,
+                        isGranted = serverConnection.data,
+                        isLoading = false,
+                        isError = null,
+                        isEnabled = true
                         )
                     }
                 }
 
                 is ServerConnection.Error -> {
                     _uiState.update { it.copy(
-                            isGranted = null,
-                            isLoading = false,
-                            isError = serverConnection.exception.message ?: "Unknown error",
+                        isGranted = null,
+                        isLoading = false,
+                        isError = serverConnection.exception.message ?: "Unknown error",
+                        isEnabled = true
                         )
                     }
                 }
 
-                is ServerConnection.Loading -> { _uiState.update { it.copy(isLoading = true) } }
+                is ServerConnection.Loading -> {
+                    _uiState.update { it.copy(
+                        isGranted = null,
+                        isLoading = true,
+                        isError = null,
+                        isEnabled = false,
+                        )
+                    }
+                }
             }
         }
     }
 
     suspend fun resetUiState(){
-        delay(500)
+        delay(200)
         _uiState.update { it.copy(
-                isGranted = null,
-                isLoading = false,
-                isError = null,
+            isGranted = null,
+            isLoading = false,
+            isError = null,
+            isEnabled = true
             )
         }
     }

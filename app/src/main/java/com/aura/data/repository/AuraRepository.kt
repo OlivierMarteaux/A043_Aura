@@ -41,6 +41,7 @@ class NetworkAuraRepository(private val auraClient: AuraClient): AuraRepository 
     override suspend fun login(id: String, password: String): ServerConnection<Boolean> {
         return try {
             ServerConnection.Loading
+            delay(2000) // for dev purpose
             val loginRequest = LoginRequest(id, password)
             val loginResponse = auraClient.login(loginRequest)
             ServerConnection.Success(loginResponse.granted)
@@ -51,6 +52,7 @@ class NetworkAuraRepository(private val auraClient: AuraClient): AuraRepository 
     override suspend fun getAccounts(id: String): ServerConnection<List<Account>> {
         return try {
             ServerConnection.Loading
+            delay(2000) // for dev purpose
             val accounts = auraClient.getAccounts(id)
             ServerConnection.Success(accounts)
         } catch (e: Exception) {
@@ -60,6 +62,7 @@ class NetworkAuraRepository(private val auraClient: AuraClient): AuraRepository 
     override suspend fun doTransfer(sender: String, recipient: String, amount: Double): ServerConnection<Boolean> {
         return try {
             ServerConnection.Loading
+            delay(2000) // for dev purpose
             Log.d("OM_TAG", "RepositorydoTransfer: $sender $recipient $amount")
             val transfer = Transfer(sender, recipient, amount)
             val transferResult = auraClient.doTransfer(transfer)

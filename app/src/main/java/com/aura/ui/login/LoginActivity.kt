@@ -85,7 +85,7 @@ class LoginActivity : AppCompatActivity()
           // Show Loading
           binding.loading.isVisible = it.isLoading
           // Enable Login
-          binding.login.isEnabled = it.isLoginEnabled && !it.isLoading
+          binding.login.isEnabled = it.isEnabled
           // Show Error if any
           it.isError?.let{ toast(it) }
           // Navigate if granted
