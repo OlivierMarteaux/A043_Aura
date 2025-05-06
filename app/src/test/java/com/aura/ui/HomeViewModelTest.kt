@@ -31,7 +31,6 @@ class HomeViewModelTest {
     private lateinit var auraRepository: AuraRepository
     private lateinit var userPreferencesRepository: UserPreferencesRepository
     private val testDispatcher = StandardTestDispatcher()
-    private lateinit var accounts: List<Account>
 
     @Before
     fun setup() {
@@ -56,7 +55,6 @@ class HomeViewModelTest {
 
     @Test
     fun homeViewModel_Initialization_ExpectedLoadingState() = runTest { // runTest:coroutine test
-//        advanceUntilIdle() // Wait for the coroutine to complete
         with (viewModel.uiState.value) {
             // Assert user login fetched from UserPreferences Repository
             assertEquals("initialIdentifier",identifier)

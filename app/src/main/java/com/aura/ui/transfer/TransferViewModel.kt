@@ -72,6 +72,8 @@ class TransferViewModel (
             _uiState.update { it.copy(
                 isTransferEnabled = false,
                 isLoading = true,
+                isError = null,
+                isGranted = null,
                 )
             }
             val serverConnection =
@@ -81,16 +83,18 @@ class TransferViewModel (
                 is ServerConnection.Success -> {
                     Log.d("OM_TAG", "Transfer connection success: transfer result = ${serverConnection.data}")
                     _uiState.update { it.copy(
+                        isTransferEnabled = isTransferEnabled(it.recipient, it.amount),
                         isGranted = serverConnection.data,
                         isLoading = false,
                         isError = null,
-                    )
+                        )
                     }
                 }
 
                 is ServerConnection.Error -> {
                     Log.d("OM_TAG", "Transfer connection error: ${serverConnection.exception.message}")
                     _uiState.update { it.copy(
+                        isTransferEnabled = isTransferEnabled(it.recipient, it.amount),
                         isGranted = null,
                         isLoading = false,
                         isError = serverConnection.exception.message ?: "Unknown error",
@@ -98,7 +102,15 @@ class TransferViewModel (
                     }
                 }
 
-                is ServerConnection.Loading -> { _uiState.update { it.copy(isLoading = true) } }
+                is ServerConnection.Loading -> {
+                    _uiState.update { it.copy(
+                        isTransferEnabled = false,
+                        isLoading = true,
+                        isError = null,
+                        isGranted = null,
+                        )
+                    }
+                }
             }
         }
     }

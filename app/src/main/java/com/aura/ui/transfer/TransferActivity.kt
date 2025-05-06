@@ -87,7 +87,7 @@ class TransferActivity : AppCompatActivity()
           // Show Loading
           binding.loading.isVisible = it.isLoading
           // Enable Transfer
-          binding.transfer.isEnabled = it.isTransferEnabled && !it.isLoading
+          binding.transfer.isEnabled = it.isTransferEnabled
           // Show Error if any
           it.isError?.let{ toast(it) }
           // Navigate if granted
