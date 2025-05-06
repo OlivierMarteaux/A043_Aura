@@ -105,6 +105,14 @@ class HomeActivity : AppCompatActivity()
     }
   }
 
+  /**
+   * Displays a short Toast message to the user and resets the UI state in the ViewModel.
+   *
+   * This method is typically used to provide quick feedback to the user
+   * (e.g., after an action or error) and then clears any transient UI state.
+   *
+   * @param message The message to be shown in the Toast.
+   */
   private suspend fun toast(message: String) {
     Toast.makeText(this@HomeActivity, message, Toast.LENGTH_SHORT).show()
     homeViewModel.resetUiState()

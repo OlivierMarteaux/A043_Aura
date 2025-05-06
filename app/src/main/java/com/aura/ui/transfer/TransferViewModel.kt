@@ -27,6 +27,17 @@ data class TransferUiState(
     val isError: String? = null,
 )
 
+/**
+ * ViewModel for managing the state and logic of the transfer screen.
+ *
+ * Handles updating the UI state for transfer operations, including setting the sender,
+ * recipient, and amount. It manages the transfer process and updates the UI state
+ * based on success, error, or loading states. It also observes the user's preferences
+ * (sender) from the [UserPreferencesRepository].
+ *
+ * @property auraRepository Repository used to interact with the backend for transfer operations.
+ * @property userPreferencesRepository Repository for accessing and observing user-stored preferences (e.g., sender).
+ */
 class TransferViewModel (
     private val auraRepository: AuraRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
@@ -47,6 +58,12 @@ class TransferViewModel (
         }
     }
 
+    /**
+     * Updates the recipient of the transfer and enables/disables the transfer button
+     * based on whether both recipient and amount are provided.
+     *
+     * @param recipient The recipient's identifier or account number.
+     */
     fun getRecipient(recipient:String){
         _uiState.update { it.copy(
             recipient = recipient,
@@ -55,6 +72,12 @@ class TransferViewModel (
         }
     }
 
+    /**
+     * Updates the amount for the transfer and enables/disables the transfer button
+     * based on whether both recipient and amount are provided.
+     *
+     * @param amount The amount of money to be transferred as a string.
+     */
     fun getAmount(amount:String){
         _uiState.update { it.copy(
             amount = amount,
@@ -63,15 +86,29 @@ class TransferViewModel (
         }
     }
 
+    /**
+     * Checks if the transfer is enabled based on the provided recipient and amount.
+     *
+     * @param recipient The recipient's identifier.
+     * @param amount The amount to be transferred.
+     * @return True if both recipient and amount are provided, false otherwise.
+     */
     private fun isTransferEnabled(recipient: String, amount: String) : Boolean {
         return recipient.isNotEmpty() && amount.isNotEmpty()
     }
 
+    /**
+     * Handles the transfer operation when the transfer button is clicked.
+     * Updates the UI state to reflect the loading, success, or error states.
+     * Initiates the transfer by calling the [auraRepository.doTransfer] method.
+     */
     fun onTransferClicked() {
         viewModelScope.launch {
             _uiState.update { it.copy(
                 isTransferEnabled = false,
                 isLoading = true,
+                isError = null,
+                isGranted = null,
                 )
             }
             val serverConnection =
@@ -81,16 +118,18 @@ class TransferViewModel (
                 is ServerConnection.Success -> {
                     Log.d("OM_TAG", "Transfer connection success: transfer result = ${serverConnection.data}")
                     _uiState.update { it.copy(
+                        isTransferEnabled = isTransferEnabled(it.recipient, it.amount),
                         isGranted = serverConnection.data,
                         isLoading = false,
                         isError = null,
-                    )
+                        )
                     }
                 }
 
                 is ServerConnection.Error -> {
                     Log.d("OM_TAG", "Transfer connection error: ${serverConnection.exception.message}")
                     _uiState.update { it.copy(
+                        isTransferEnabled = isTransferEnabled(it.recipient, it.amount),
                         isGranted = null,
                         isLoading = false,
                         isError = serverConnection.exception.message ?: "Unknown error",
@@ -98,11 +137,23 @@ class TransferViewModel (
                     }
                 }
 
-                is ServerConnection.Loading -> { _uiState.update { it.copy(isLoading = true) } }
+                is ServerConnection.Loading -> {
+                    _uiState.update { it.copy(
+                        isTransferEnabled = false,
+                        isLoading = true,
+                        isError = null,
+                        isGranted = null,
+                        )
+                    }
+                }
             }
         }
     }
 
+    /**
+     * Resets the UI state to its initial state after a delay.
+     * This is typically used to clear any results or errors after a transfer operation.
+     */
     suspend fun resetUiState(){
         delay(500)
         _uiState.update { it.copy(
@@ -113,6 +164,10 @@ class TransferViewModel (
         }
     }
 
+    /**
+     * ViewModel factory for creating instances of [TransferViewModel].
+     * Used for dependency injection with the application context.
+     */
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {

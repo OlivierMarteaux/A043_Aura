@@ -85,7 +85,7 @@ class LoginActivity : AppCompatActivity()
           // Show Loading
           binding.loading.isVisible = it.isLoading
           // Enable Login
-          binding.login.isEnabled = it.isLoginEnabled && !it.isLoading
+          binding.login.isEnabled = it.isEnabled
           // Show Error if any
           it.isError?.let{ toast(it) }
           // Navigate if granted
@@ -98,11 +98,25 @@ class LoginActivity : AppCompatActivity()
     }
   }
 
+  /**
+   * Displays a short Toast message to the user and resets the UI state in the ViewModel.
+   *
+   * This method provides quick feedback to the user (e.g., after an action or error)
+   * and clears any transient UI state after the message is shown.
+   *
+   * @param message The message to be shown in the Toast.
+   */
   private suspend fun toast(message: String) {
     Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT).show()
     loginViewModel.resetUiState()
   }
 
+  /**
+   * Hides the soft keyboard if it's currently displayed.
+   *
+   * This extension function is used to dismiss the keyboard, often after user input,
+   * ensuring a cleaner UI experience.
+   */
   private fun View.hideKeyboard() {
     val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
     imm.hideSoftInputFromWindow(windowToken, 0)

@@ -25,12 +25,13 @@ android {
     }
   }
   compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
   }
   kotlinOptions {
-    jvmTarget = "1.8"
+    jvmTarget = "11"
   }
+
   buildFeatures {
     viewBinding = true
   }
@@ -44,9 +45,6 @@ dependencies {
   implementation("com.google.android.material:material:1.8.0")
   implementation("androidx.annotation:annotation:1.6.0")
   implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-  testImplementation("junit:junit:4.13.2")
-  androidTestImplementation("androidx.test.ext:junit:1.1.5")
-  androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
   //activity (viewModel())
   implementation("androidx.activity:activity-ktx:1.8.2")
@@ -63,9 +61,18 @@ dependencies {
   //DataStore
   implementation("androidx.datastore:datastore-preferences:1.0.0")
 
+  //Tests
+  testImplementation("junit:junit:4.13.2")
+  androidTestImplementation("androidx.test.ext:junit:1.1.5")
+  androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+  testImplementation("io.mockk:mockk:1.13.8")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+  testImplementation(kotlin("test"))
+
 
 //  //Hilt
 //  val hiltVersion = "2.44"
 //  implementation("com.google.dagger:hilt-android:${hiltVersion}")
 //  annotationProcessor("com.google.dagger:hilt-compiler:${hiltVersion}")
+
 }

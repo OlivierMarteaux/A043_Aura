@@ -11,6 +11,14 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
+/**
+ * Repository for managing user preferences using Jetpack DataStore.
+ *
+ * This class provides methods to persist and retrieve simple user input
+ * as a string value, using a `Preferences`-based `DataStore`.
+ *
+ * @property dataStore The DataStore instance used to read and write user preferences.
+ */
 class UserPreferencesRepository(
     private val dataStore:DataStore<Preferences>
 ) {
