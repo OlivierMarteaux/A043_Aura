@@ -68,7 +68,7 @@ class LoginViewModel(
     /**
      * Updates the identifier field in the UI state.
      *
-     * Also triggers a recalculation of [isLoginEnabled] to determine
+     * Also triggers a recalculation of [isEnabled] to determine
      * whether the login button should be enabled.
      *
      * @param identifier The new identifier value entered by the user.
@@ -76,7 +76,7 @@ class LoginViewModel(
     fun getIdentifier(identifier:String){
         _uiState.update { it.copy(
             identifier = identifier,
-            isEnabled = isLoginEnabled(identifier, it.password),
+            isEnabled = isEnabled(identifier, it.password),
             )
         }
     }
@@ -84,7 +84,7 @@ class LoginViewModel(
     /**
      * Updates the password field in the UI state.
      *
-     * Also triggers a recalculation of [isLoginEnabled] to determine
+     * Also triggers a recalculation of [isEnabled] to determine
      * whether the login button should be enabled.
      *
      * @param password The new password value entered by the user.
@@ -92,7 +92,7 @@ class LoginViewModel(
     fun getPassword(password:String){
         _uiState.update { it.copy(
             password = password,
-            isEnabled = isLoginEnabled(it.identifier, password),
+            isEnabled = isEnabled(it.identifier, password),
             )
         }
     }
@@ -108,7 +108,7 @@ class LoginViewModel(
      *
      * @return True if both identifier and password are not empty.
      */
-    private fun isLoginEnabled(identifier: String, password: String) : Boolean {
+    private fun isEnabled(identifier: String, password: String) : Boolean {
         return identifier.isNotEmpty() && password.isNotEmpty()
     }
 

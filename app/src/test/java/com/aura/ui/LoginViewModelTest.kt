@@ -47,19 +47,20 @@ class LoginViewModelTest {
 
     @Test
     fun loginViewModel_Initialization_ExpectedInitialState() = runTest { // runTest:coroutine test
-
-        // user login fetched from UserPreferences Repository
-        assertEquals(viewModel.uiState.value.identifier, "initialIdentifier")
-        // password field empty
-        assertEquals(viewModel.uiState.value.password, "")
-        // login button disabled
-        assertFalse(viewModel.uiState.value.isEnabled)
-        // loading state disabled
-        assertFalse(viewModel.uiState.value.isLoading)
-        // Error state is null
-        assertEquals(viewModel.uiState.value.isError, null)
-        // Granted state is null
-        assertEquals(viewModel.uiState.value.isGranted, null)
+        with (viewModel.uiState.value) {
+            // user login fetched from UserPreferences Repository
+            assertEquals(identifier, "initialIdentifier")
+            // password field empty
+            assertEquals(password, "")
+            // login button disabled
+            assertFalse(isEnabled)
+            // loading state disabled
+            assertFalse(isLoading)
+            // Error state is null
+            assertEquals(isError, null)
+            // Granted state is null
+            assertEquals(isGranted, null)
+        }
     }
 
     @Test
