@@ -72,8 +72,13 @@ class HomeViewModelTest {
     @Test
     fun homeViewModel_OnSuccessfulServerConnection_ExpectedSuccessState() = runTest{
         // Mock successful server response
-        val accounts = listOf(Account("1", true, 100.0), Account("2", false, 200.0))
+        val accounts = listOf(
+            Account("1", true, 100.0),
+            Account("2", false, 200.0)
+        )
         coEvery { auraRepository.getAccounts(any()) } returns ServerConnection.Success(accounts)
+
+        // Given a successful server response with users accounts
         viewModel.getAccounts()
         advanceUntilIdle() // Wait for the coroutine to complete
 
@@ -100,8 +105,11 @@ class HomeViewModelTest {
                 errorMessage
             )
         )
+
+        // Given a server error
         viewModel.getAccounts()
         advanceUntilIdle() // Wait for the coroutine to complete
+
         with(viewModel.uiState.value) {
             // Assert user login correctly fetched from UserPreferences Repository
             assertEquals("initialIdentifier", identifier)

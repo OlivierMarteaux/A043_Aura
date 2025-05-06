@@ -107,9 +107,11 @@ class TransferViewModelTest {
     fun transferViewModel_OnTransferButtonClick_ServerConnectionIsLoadingAsExpected() = runTest {
         // Mock server response
         coEvery { auraRepository.doTransfer(any(), any(), any()) } returns ServerConnection.Loading
+
         // Given correct recipient and amount
         viewModel.getRecipient("testRecipient")
         viewModel.getAmount("200")
+
         // When transfer button is clicked
         viewModel.onTransferClicked()
         advanceUntilIdle() // Wait for the coroutine to complete
@@ -129,9 +131,11 @@ class TransferViewModelTest {
     fun transferViewModel_OnSuccessfulServerConnectionAndUnauthorizedId_AccessDeniedAsExpected() = runTest {
         // Mock server response
         coEvery { auraRepository.doTransfer(any(), any(), any()) } returns ServerConnection.Success(false)
+
         // Given correct recipient and amount
         viewModel.getRecipient("testRecipient")
         viewModel.getAmount("200")
+
         // When transfer button is clicked
         viewModel.getAmount("200")
         viewModel.onTransferClicked()
@@ -153,9 +157,11 @@ class TransferViewModelTest {
         // Mock server response
         val errorMessage = "Server error"
         coEvery { auraRepository.doTransfer(any(), any(), any()) } returns ServerConnection.Error(Exception(errorMessage))
+
         // Given correct recipient and amount
         viewModel.getRecipient("testRecipient")
         viewModel.getAmount("200")
+
         // When transfer button is clicked
         viewModel.onTransferClicked()
         advanceUntilIdle() // Wait for the coroutine to complete

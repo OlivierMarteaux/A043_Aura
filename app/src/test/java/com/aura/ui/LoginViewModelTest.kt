@@ -48,17 +48,17 @@ class LoginViewModelTest {
     @Test
     fun loginViewModel_Initialization_ExpectedInitialState() = runTest { // runTest:coroutine test
         with (viewModel.uiState.value) {
-            // user login fetched from UserPreferences Repository
+            // Assert user login is fetched from UserPreferences Repository
             assertEquals(identifier, "initialIdentifier")
-            // password field empty
+            // Assert password field is empty
             assertEquals(password, "")
-            // login button disabled
+            // Assert login button is disabled
             assertFalse(isEnabled)
-            // loading state disabled
+            // Assert loading state is disabled
             assertFalse(isLoading)
-            // Error state is null
+            // Assert error state is null
             assertEquals(isError, null)
-            // Granted state is null
+            // Assert granted state is null
             assertEquals(isGranted, null)
         }
     }
@@ -76,7 +76,7 @@ class LoginViewModelTest {
 
     @Test
     fun loginViewModel_IdentifierEmpty_LoginButtonDisabled() = runTest {
-        //When login is empty
+        // When login is empty
         viewModel.getIdentifier("")
         viewModel.getPassword("testPassword")
 
@@ -120,10 +120,12 @@ class LoginViewModelTest {
     fun loginViewModel_OnSuccessfulServerConnectionAndUnauthorizedId_AccessDenied() = runTest {
         // Mock server response
         coEvery { auraRepository.login(any(), any()) } returns ServerConnection.Success(false)
+
         // When login button is clicked
         viewModel.onLoginClicked()
         advanceUntilIdle() // Wait for the coroutine to complete
         val currentState = viewModel.uiState.value
+
         // Assert loading state is disabled
         assertFalse(currentState.isLoading)
         // Assert error state is null
@@ -138,10 +140,12 @@ class LoginViewModelTest {
     fun loginViewModel_OnSuccessfulServerConnectionAndAuthorizedId_AccessGranted() = runTest {
         // Mock server response
         coEvery { auraRepository.login(any(), any()) } returns ServerConnection.Success(true)
+
         // When login button is clicked
         viewModel.onLoginClicked()
         advanceUntilIdle() // Wait for the coroutine to complete
         val currentState = viewModel.uiState.value
+
         // Assert loading state is disabled
         assertFalse(currentState.isLoading)
         // Assert error state is null
