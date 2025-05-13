@@ -7,14 +7,13 @@ Projet 4 - Mission - Accedez à des donnees externes pour une appli Kotlin
   
 [Link to the starter repository](https://github.com/OpenClassrooms-Student-Center/Acc-dez-des-donn-es-externes-pour-une-appli-en-Kotlin)  
 
-[Link to the Aura fake banking server Api]
-(https://github.com/OpenClassrooms-Student-Center/Server-API-Acc-dez-des-donn-es-externes-pour-un-app-en-Kotlin)
+[Link to the Aura fake banking server Api](https://github.com/OpenClassrooms-Student-Center/Server-API-Acc-dez-des-donn-es-externes-pour-un-app-en-Kotlin)  
   
 [Link to the Openclassroom project](https://openclassrooms.com/fr/paths/527/projects/1636/164-mission---accedez-a-des-donnees-externes-pour-une-app-en-kotlin)  
   
-[Link to the screen recorder](assets/screenRecorder/)
+[Link to the screen recorder](assets/screenRecorder/)  
   
-[Link to the UI tests report](assets/tests/)
+[Link to the UI tests report](assets/tests/)  
   
   
 ### Objectives  
